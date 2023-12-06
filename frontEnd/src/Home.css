@@ -1,3 +1,4 @@
+/* Home.css */
 .home-container {
     text-align: center;
     padding-top: 50px;
@@ -7,102 +8,18 @@
     font-family: 'Arial', sans-serif;
 }
 
-.auth-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
-    background: #fff; /* Change the background to white for visibility */
-    color: #333; /* Dark text for readability */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin: 20px auto;
-    width: 80%; /* Adjust width for better centering */
-}
-
-.user-info {
-    text-align: left;
-    padding: 10px;
-    background: #f2f2f2; /* Light grey background */
-    margin-bottom: 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.user-info p {
-    margin: 0; /* Remove default margin */
-    padding: 5px 0; /* Add some padding */
-}
-
-.logout-container {
-    text-align: right;
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-    font-size: 1rem;
-    float: right; /* Align the logout button to the right */
-}
-
-button:hover {
-    background-color: #2980b9;
-}
-
-.parking-table {
-    margin-top: 20px;
-    text-align: left;
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.parking-table th, .parking-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left; /* Align text to the left in table cells */
-}
-
-/* Table headers */
-.parking-table th {
-    background-color: #3498db;
-    color: white;
-}
-
-/* Clear floats */
-.clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
-}
-
-/* Styles for when the user is not authenticated */
 .welcome-panel {
-    margin: auto;
-    width: 30%;
+    text-align: center;
     padding: 2rem;
-    border-radius: 8px;
+    max-width: 400px;
+    width: 80%;
+    margin: auto;
     background-color: white;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: #333;
 }
 
-.welcome-panel h3 {
-    color: #3498db;
-}
-
-.welcome-message {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-}
-
-/* Button styling */
 .btn {
     margin: 10px;
     padding: 10px 20px;
@@ -114,33 +31,61 @@ button:hover {
     transition: background-color 0.3s ease;
 }
 
-.btn-primary {
-    background-color: #2ecc71;
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    background: #fff; /* Change the background to white for visibility */
+    color: #333; /* Dark text for readability */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 10px auto;
+    width: 90%; /* Adjust width for better centering */
 }
 
-.btn-primary:hover {
-    background-color: #27ae60;
+.user-info {
+    text-align: left;
+    padding: 10px;
+    background: #f2f2f2; /* Light grey background */
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.btn-secondary {
-    background-color: #f39c12;
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    cursor: pointer;
+    font-size: 1rem;
 }
 
-.btn-secondary:hover {
-    background-color: #e67e22;
+button:hover {
+    background-color: #2980b9;
 }
 
-.btn-danger {
-    background-color: #e74c3c;
+.parking-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.btn-danger:hover {
-    background-color: #c0392b;
+.parking-table th, .parking-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
 }
 
-/* Link styling */
-a.btn {
-    text-decoration: none;
-    display: inline-block;
+.parking-table th {
+    background-color: #3498db;
     color: white;
+}
+
+.paid-row {
+    background-color: rgb(114, 197, 114);
+}
+
+.unpaid-row {
+    background-color: orange;
 }

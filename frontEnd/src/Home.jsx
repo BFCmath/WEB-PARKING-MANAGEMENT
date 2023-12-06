@@ -10,16 +10,12 @@ function Home() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [student_id, setStudent_id] = useState('');
+
     const navigate = useNavigate();
     axios.defaults.withCredentials = true;
-    const parkingRecords = [
-        { 
-            timeParking: '10:40:34 2/2/2023', 
-            timeUnparking: '15:04:12 2/2/2023', 
-            totalTime: '4 hours, 23 minutes, 38 seconds', // This should be calculated
-            moneyToPay: '4,000' // This should be calculated based on total time
-        }
-    ]
+
+    const [parkingData, setParkingData] = useState([]);
+
     useEffect(() => {
         axios.get('http://localhost:3000')
             .then(res => {
@@ -28,6 +24,14 @@ function Home() {
                     setName(res.data.name);
                     setEmail(res.data.email);
                     setStudent_id(res.data.student_id);
+                    axios.get(`http://localhost:3000/parking-data?student_id=${res.data.student_id}`, { withCredentials: true })
+                        .then(parkingRes => {
+                            console.log(parkingRes.data);
+                            setParkingData(parkingRes.data); 
+                        })
+                        .catch(parkingErr => {
+                            console.error(parkingErr);
+                        });
                 } else {
                     setAuth(false);
                     setMessage(res.data.Error);
@@ -35,6 +39,10 @@ function Home() {
             })
             .catch(err => console.log(err));
     }, []);
+    
+    const handlePrintQR = () => {
+        navigate(`/print-qr?student_id=${student_id}`); 
+    };
 
     const handleLogout = () => {
         axios.get('http://localhost:3000/logout')
@@ -42,7 +50,7 @@ function Home() {
                 navigate('/login');
             })
             .catch(err => console.log(err));
-    }
+    };
 
     return (
         <div className='home-container'>
@@ -56,33 +64,35 @@ function Home() {
           ) :(
             <div className='auth-container'>
                 <div className='user-info'>
+                    <div style={{float: "left"}}>
                     <p>Name: {name}</p>
                     <p>Email: {email}</p>
                     <p>Student ID: {student_id}</p>
+                    </div>
+                    
+                    <button onClick={handleLogout} style={{float: "right"}} className='rounded'>Logout</button>
                 </div>
                 <div className='logout-container'>
-                    <button onClick={handleLogout}>Logout</button>
+                    <button onClick={handlePrintQR}>Print QR</button> {/* Add this button */}
                 </div>
                 <table className='parking-table'>
-                        <thead>
-                            <tr>
-                                <th>Time In</th>
-                                <th>Time Out</th>
-                                <th>Total Time Parking</th>
-                                <th>Money to Pay</th>
+                    <thead>
+                        <tr>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Price (VND)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {parkingData.map((record, index) => (
+                            <tr key={index} className={record.is_paid === 1 ? 'paid-row' : 'unpaid-row'}>
+                                <td>{record.time_in}</td>
+                                <td>{record.time_out}</td>
+                                <td>{record.price}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {parkingRecords.map((record, index) => (
-                                <tr key={index}>
-                                    <td>{record.timeParking}</td>
-                                    <td>{record.timeUnparking}</td>
-                                    <td>{record.totalTime}</td>
-                                    <td>{record.moneyToPay} VND</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                        ))}
+                    </tbody>
+                </table>
           </div>
           )}
         </div>
