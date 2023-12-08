@@ -4,10 +4,20 @@
     padding-top: 50px;
     background: #3498db; /* A vibrant blue background */
     color: white;
-    height: 100vh;
     font-family: 'Arial', sans-serif;
 }
-
+.home-container:after {
+    position: fixed;
+    content: "";
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    display: block;
+    background: #3498db; /* A vibrant blue background */
+    background-size: cover;
+}
 .welcome-panel {
     text-align: center;
     padding: 2rem;
@@ -32,16 +42,17 @@
 }
 
 .auth-container {
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch; /* Changed from flex-start to stretch */
     padding: 20px;
-    background: #fff; /* Change the background to white for visibility */
-    color: #333; /* Dark text for readability */
+    background: #fff;
+    color: #333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    margin: 10px auto;
-    width: 90%; /* Adjust width for better centering */
+    margin: 50px auto;
+    width: 80%;
 }
 
 .user-info {
@@ -89,3 +100,46 @@ button:hover {
 .unpaid-row {
     background-color: orange;
 }
+.pay-button {
+    padding: 5px 30px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(36, 227, 11);
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    margin: 10px;
+    float: right;
+    margin-left: auto; /* This will push the button to the right */
+}
+
+
+.total-row {
+    background-color: #f0f0f0; /* Light gray background */
+    color: #333; /* Darker text color */
+    /* Add any other styling as needed */
+}
+.status-column {
+    width: 50px; /* Or any other suitable width */
+    /* Additional styling as needed */
+}
+.filter-container {
+    /* margin-bottom: 10px; */
+    /* order: 2; */
+    float: left;
+    margin-left: auto; 
+    margin-left: 10px;
+}
+.printQR-container{
+    padding: 5px 30px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    margin: 10px;
+    float: left;
+    margin-left: auto; 
+}
+
+

@@ -19,13 +19,13 @@ const signupDatabase = mySQL.createConnection({
     host : "127.0.0.1",
     user: "root",
     password: "20122005Math@",
-    database: "signup"
+    database: "user"
 });
 const parkingmanagementDatabase = mySQL.createConnection({
     host : "127.0.0.1",
     user: "root",
     password: "20122005Math@",
-    database: "parkingmanagement"
+    database: "parking"
 });
 
 
@@ -34,7 +34,7 @@ signupDatabase.connect((err)=>{
         console.log(err);
     }
     else{
-        console.log("signupDatabase Connected...");
+        console.log("signupDB Connected...");
     }
 });
 parkingmanagementDatabase.connect((err)=>{
@@ -42,7 +42,7 @@ parkingmanagementDatabase.connect((err)=>{
         console.log(err);
     }
     else{
-        console.log("parkingmanagementDatabase Connected...");
+        console.log("parkingDB Connected...");
     }
 });
 
@@ -76,7 +76,7 @@ app.get('/parking-data', (req, res) => {
         return res.status(400).json({ message: "No student ID provided",error: err.message });
     }
 
-    const sql = "SELECT * FROM parking_total WHERE student_id = ?";
+    const sql = "SELECT * FROM parking_event WHERE student_id = ?";
     parkingmanagementDatabase.query(sql, [studentId], (err, result) => {
         if (err) {
             console.error('Error fetching parking data:', err);
@@ -93,43 +93,57 @@ app.get('/logout', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    // Check if the student_ID already exists
-    const checkStudentIdSql = "SELECT * FROM login WHERE student_ID = ?";
-    signupDatabase.query(checkStudentIdSql, [req.body.student_id], (err, result) => {
-        if (err) {
-            console.error('Error checking student ID:', err);
-            return res.status(500).json({ message: "Error checking student ID", error: err.message });
+    // Check if the email already exists
+    const checkEmailSql = "SELECT * FROM login WHERE email = ?";
+    signupDatabase.query(checkEmailSql, [req.body.email], (emailErr, emailResult) => {
+        if (emailErr) {
+            console.error('Error checking email:', emailErr);
+            return res.status(500).json({ message: "Error checking email", error: emailErr.message });
         }
-        if (result.length > 0) {
-            // If a record is found, send an error response
-            return res.status(400).json({ message: "Student ID already exists" });
+        if (emailResult.length > 0) {
+            // If an email record is found, send an error response
+            return res.status(400).json({ message: "Email already exists" });
         } else {
-            // If no record is found, proceed with registration
-            bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
+            // Check if the student_ID already exists
+            const checkStudentIdSql = "SELECT * FROM login WHERE student_id = ?";
+            signupDatabase.query(checkStudentIdSql, [req.body.student_id], (err, result) => {
                 if (err) {
-                    console.error('Error hashing password:', err);
-                    return res.status(500).json({ message: "Error in hashing password", error: err.message });
+                    console.error('Error checking student id:', err);
+                    return res.status(500).json({ message: "Error checking student id", error: err.message });
                 }
-                const values = [req.body.name, req.body.student_id, req.body.email, hash];
-                const sql = "INSERT INTO login (`name`, `student_ID`, `email`, `password` ) VALUES (?)";
-                signupDatabase.query(sql, [values], (err, result) => {
-                    if (err) {
-                        console.error('Error inserting values:', values, 'Error:', err);
-                        return res.status(500).json({ message: "Error in inserting values", values, error: err.message });
-                    } else {
-                        return res.json({ message: "Registered Successfully" });
-                    }
-                });
+                if (result.length > 0) {
+                    // If a student ID record is found, send an error response
+                    return res.status(400).json({ message: "Student id already exists" });
+                } else {
+                    // If no record is found, proceed with registration
+                    bcrypt.hash(req.body.password.toString(), salt, (hashErr, hash) => {
+                        if (hashErr) {
+                            console.error('Error hashing password:', hashErr);
+                            return res.status(500).json({ message: "Error in hashing password", error: hashErr.message });
+                        }
+                        const values = [req.body.name, req.body.student_id, req.body.email, hash];
+                        const sql = "INSERT INTO login (`name`, `student_id`, `email`, `password`) VALUES (?)";
+                        signupDatabase.query(sql, [values], (insertErr, insertResult) => {
+                            if (insertErr) {
+                                console.error('Error inserting values:', values, 'Error:', insertErr);
+                                return res.status(500).json({ message: "Error in inserting values", values, error: insertErr.message });
+                            } else {
+                                return res.json({ message: "Registered Successfully" });
+                            }
+                        });
+                    });
+                }
             });
         }
     });
 });
+
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM login WHERE email = ?";
     signupDatabase.query(sql, [req.body.email], (err, result) => {
         if (err) {
             console.error('Error in query:', err); // Print to the server terminal
-            return res.json({ message: "Error in query", error: err.message });
+            return res.json({ message: "User not found", error: err.message });
         }
         if (result.length == 0) {
             return res.json({ message: "User not found"});
@@ -144,7 +158,7 @@ app.post('/login', (req, res) => {
             }
             const name = result[0].name;
             const email = result[0].email; // Get the email from the query result
-            const student_id = result[0].student_ID;
+            const student_id = result[0].student_id;
             const token = jwt.sign(
                 { name, email, student_id}, // Include both name and email in the payload
                 'fwt-secret-key',

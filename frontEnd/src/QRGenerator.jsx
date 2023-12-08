@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation} from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 
 function QRGenerator() {
-    const [studentId, setStudentId] = useState('');
     const navigate = useNavigate();
-
+    const location = useLocation(); 
+    const studentId = (location.state?.studentId);
     const handleBack = () => {
         navigate('/'); // Navigate back to home page
     };
 
-    useEffect(() => {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        setStudentId(urlParams.get('student_id'));
-    }, []);
+    
 
     const handlePrintQR = () => {
         // Implement print functionality

@@ -1,0 +1,79 @@
+.payment-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+    background: #f0e7e7;
+}
+
+.payment-button {
+    margin: 2vh 0; /* Scales the margin with the viewport height */
+    padding: 2vh; /* Scales the padding with the viewport height */
+    width: 60vw; /* Scales the width with the viewport width */
+    max-width: 400px; /*Limits the maximum width */
+     min-width: 300px; /*Ensures a minimum width */
+    height: 10vh; /* Scales the height with the viewport height */
+    min-height: 50px; /* Ensures a minimum height */
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5vh; /* Scales the font size with the viewport height */
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+.payment-button span {
+    z-index: 2;
+}
+
+
+.payment-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.5; /* Adjust for readability */
+    z-index: 1;
+}
+.back-button {
+    margin-top: 20px; /* Adds space above the button */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db; /* Or any color that fits your design */
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#e-wallet::before {
+    background-image: url('assets/images/e-wallet.png');
+}
+
+#banking::before {
+    background-image: url('assets/images/bank.png');
+}
+
+#tuition::before {
+    background-image: url('assets/images/ueh.png');
+}
+
+/* Add any specific styles for the in-app button if needed */
+#in-app {
+    background: #4caf50; /* Example background color */
+}
