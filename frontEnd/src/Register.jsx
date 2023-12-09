@@ -16,7 +16,7 @@ function Register() {
     });
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3000/register', values)
+        axios.post('https://server-parking-web.onrender.com/register', values)
         .then(res => {
             console.log(res);
             toast.success('Successfully registered!', {

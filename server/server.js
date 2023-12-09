@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();  
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: [process.env.ORIGIN],
     methods: ["GET", "POST"],
     credentials: true
 }));
@@ -118,7 +118,7 @@ app.get('/user-information', (req, res) => {
     });
 });
 app.post('/parking-data/pay', (req, res) => {
-    const parkingSQL = "UPDATE parking_event SET is_paid = 1 WHERE student_id = ? AND is_paid = 0;";
+    const parkingSQL = "UPDATE parking_event SET is_paid = 1 WHERE student_id = ? AND is_paid = 0 AND price is not NULL; ";
     parkingDatabase.query(parkingSQL, [req.body.student_id], (err, result) => {
         if (err) {
             console.error('Error paying parking:', err);
@@ -135,9 +135,10 @@ app.post('/parking-data/pay', (req, res) => {
     });
 });
 app.get('/logout', (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', { secure: true, sameSite: 'None' });
     return res.json({Status: "Success"});
 });
+
 app.post('/user-information/add-money', (req, res) => {
     const addMoneySql = "UPDATE user_information SET saving = saving + ? WHERE student_id = ?";
     userDatabase.query(addMoneySql, [req.body.money_add, req.body.student_id], (err, result) => {
@@ -221,12 +222,13 @@ app.post('/login', (req, res) => {
                 'fwt-secret-key',
                 { expiresIn: '1h' }
             );
-            res.cookie('token', token);
+            console.log(token);
+            res.cookie('token', token, { secure: true, sameSite: 'None' });
             return res.json({Status: "Success"});
         });
     });
 }); 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT,()=>{
-    console.log("Server is running on port 3000");
+    console.log(`Server is running on port ${PORT}`);
 })
