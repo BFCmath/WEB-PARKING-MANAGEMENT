@@ -5,6 +5,9 @@ import axios from 'axios';
 import './Home.css'; // Assuming you have a CSS file for styling
 
 function Home() {
+    axios.defaults.withCredentials = true;
+    const navigate = useNavigate();
+
     const [auth, setAuth] = useState(false);
     const [message, setMessage] = useState('');
     const [name, setName] = useState('');
@@ -12,10 +15,26 @@ function Home() {
     const [student_id, setStudent_id] = useState('');
     const [total_money,setTotal_money] = useState(0);
     const [statusFilter, setStatusFilter] = useState('all');
-    const navigate = useNavigate();
-    axios.defaults.withCredentials = true;
-
     const [parkingData, setParkingData] = useState([]);
+
+
+
+    const fetchParkingData = () => {
+        axios.get(`http://localhost:3000/parking-data?student_id=${student_id}`, { withCredentials: true })
+            .then(parkingRes => {
+                console.log('Parking data: ' + student_id);
+                console.log(parkingRes.data);
+                setParkingData(parkingRes.data); 
+                var totalPaid = parkingRes.data.reduce((total, record) => {
+                    return record.is_paid === 0 ? total + Number(record.price) : total;
+                }, 0);
+                if(statusFilter === 'paid') totalPaid = 0;
+                setTotal_money(totalPaid);
+            })
+            .catch(parkingErr => {
+                console.error(parkingErr);
+            });
+        };
     function formatDateTime(isoString) {
         if(!isoString) return 'N/A';
         const date = new Date(isoString);
@@ -39,15 +58,20 @@ function Home() {
         reversedStr = reversedStr.replace(/(\d{3})(?=\d)/g, '$1.');
         return reversedStr.split('').reverse().join('');
     }
-    
-    
-    
+    const filteredParkingData = parkingData.filter(record => {
+        if (statusFilter === 'all') return true;
+        if (statusFilter === 'paid') return record.is_paid === 1;
+        if (statusFilter === 'unpaid') return record.is_paid === 0;
+    });
     const handlePrintQR = () => {
         navigate('/print-qr', { state: { studentId: student_id } });
     };
     const handleStatusFilterChange = (event) => {
         setStatusFilter(event.target.value);
     };
+    const handlePay = () =>{
+        navigate('/payment',{state: {studentId: student_id}});
+    }
     const handleLogout = () => {
         axios.get('http://localhost:3000/logout')
             .then(() => {
@@ -70,40 +94,16 @@ function Home() {
                 }
             })
             .catch(err => console.log(err));
-    }, [statusFilter]);
+    }, []);
     useEffect(() => {
-        if(student_id===''){
+        if(!student_id){
             console.log("no student_id yet");    
             return;
         }
-        const fetchParkingData = () => {
-            axios.get(`http://localhost:3000/parking-data?student_id=${student_id}`, { withCredentials: true })
-                .then(parkingRes => {
-                    console.log('Parking data:');
-                    console.log(parkingRes.data);
-                    setParkingData(parkingRes.data); 
-                    var totalPaid = parkingRes.data.reduce((total, record) => {
-                        return record.is_paid === 0 ? total + Number(record.price) : total;
-                    }, 0);
-                    if(statusFilter === 'unpaid') totalPaid = 0;
-                    setTotal_money(totalPaid);
-                })
-                .catch(parkingErr => {
-                    console.error(parkingErr);
-                });
-            };
         fetchParkingData();
         const intervalId = setInterval(fetchParkingData, 30000);
         return () => clearInterval(intervalId);
-      },[student_id]);
-    
-    const filteredParkingData = parkingData.filter(record => {
-        if (statusFilter === 'all') return true;
-        if (statusFilter === 'paid') return record.is_paid === 1;
-        if (statusFilter === 'unpaid') return record.is_paid === 0;
-    });
-    
-
+      },[statusFilter,student_id]);
     return (
         <div className='home-container'>
           {!auth ? (
@@ -120,13 +120,11 @@ function Home() {
                     <p>Name: {name}</p>
                     <p>Email: {email}</p>
                     <p>Student ID: {student_id}</p>
-                    
                     </div>
-                    
                     <button onClick={handleLogout} style={{float: "right"}} className='rounded'>Logout</button>
                 </div>
                 <div >
-                    <button onClick={handlePrintQR} className='printQR-container' >Print QR</button> {/* Add this button */}
+                    <button onClick={handlePrintQR} className='printQR-container' >Print QR</button> 
                 </div>
                 <div className='filter-container'>
                     <label htmlFor="statusFilter">Filter by status:  </label>
@@ -136,7 +134,7 @@ function Home() {
                         <option value="unpaid">Unpaid</option>
                     </select>
                 </div>
-                <table className='parking-table'>
+                <table className='parking-table' style={{wordBreak: 'break-word', maxWidth: '100%'}}>
                     <thead>
                         <tr>
                             <th>Time In</th>
@@ -145,23 +143,23 @@ function Home() {
                             <th>Price (VND)</th>
                         </tr>
                     </thead>
-                        <tbody>
-                            {filteredParkingData.map((record, index) => (
-                                <tr key={index} className={record.is_paid === 1 ? 'paid-row' : 'unpaid-row'}>
-                                    <td>{formatDateTime(record.time_in)}</td>
-                                    <td>{formatDateTime(record.time_out)}</td>
-                                    <td>{record.is_paid === 1 ? 'Paid' : 'Unpaid'}</td>
-                                    <td>{formatAndAppendZeros(record.price)}</td>
-                                </tr>
-                            ))}
-                            <tr className='total-row'>
-                                <td colSpan="3" style={{textAlign: "right"}}>Total Money:</td>
-                                <td>{formatAndAppendZeros(total_money)}</td>
+                    <tbody>
+                        {filteredParkingData.map((record, index) => (
+                            <tr key={index} className={record.is_paid === 1 ? 'paid-row' : 'unpaid-row'}>
+                                <td>{formatDateTime(record.time_in)}</td>
+                                <td>{formatDateTime(record.time_out)}</td>
+                                <td>{record.is_paid === 1 ? 'Paid' : 'Unpaid'}</td>
+                                <td>{formatAndAppendZeros(record.price)}</td>
                             </tr>
-                        </tbody>
+                        ))}
+                        <tr className='total-row'>
+                            <td colSpan="3" style={{textAlign: "right"}}>Total Money:</td>
+                            <td>{formatAndAppendZeros(total_money)}</td>
+                        </tr>
+                    </tbody>
                 </table>
                 <div>
-                    <button onClick={() => navigate('/payment')} className="pay-button">PAY</button> 
+                    <button onClick={handlePay} className="pay-button">PAY</button> 
                 </div>   
             </div>
           )}

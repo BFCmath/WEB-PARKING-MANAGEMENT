@@ -1,7 +1,8 @@
 /* Home.css */
 .home-container {
+    min-height: 100vh;
     text-align: center;
-    padding-top: 50px;
+    padding-top: 10vh;
     background: #3498db; /* A vibrant blue background */
     color: white;
     font-family: 'Arial', sans-serif;
@@ -120,7 +121,7 @@ button:hover {
     /* Add any other styling as needed */
 }
 .status-column {
-    width: 50px; /* Or any other suitable width */
+    min-width: 40px; /* Or any other suitable width */
     /* Additional styling as needed */
 }
 .filter-container {

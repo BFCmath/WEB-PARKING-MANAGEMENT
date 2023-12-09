@@ -1,11 +1,12 @@
 import express from "express";
-import mySQL from "mysql";
+import mySQL from "mysql2";
 import cors from "cors"   
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 const salt = 10;
-
+dotenv.config();
 const app = express();  
 app.use(express.json());
 app.use(cors({
@@ -15,29 +16,43 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
-const signupDatabase = mySQL.createConnection({
-    host : "127.0.0.1",
-    user: "root",
-    password: "20122005Math@",
-    database: "user"
-});
-const parkingmanagementDatabase = mySQL.createConnection({
-    host : "127.0.0.1",
-    user: "root",
-    password: "20122005Math@",
-    database: "parking"
+const userDatabase = mySQL.createConnection({
+    host: process.env.USER_DB_HOST,
+    user: process.env.USER_DB_USER,
+    password: process.env.USER_DB_PASSWORD,
+    database: process.env.USER_DB_NAME
 });
 
+const parkingDatabase = mySQL.createConnection({
+    host: process.env.PARKING_DB_HOST,
+    user: process.env.PARKING_DB_USER,
+    password: process.env.PARKING_DB_PASSWORD,
+    database: process.env.PARKING_DB_NAME
+});
+// const userDatabase = mySQL.createConnection({
+//     host : "127.0.0.1",
+//     user: "root",
+//     password: "20122005Math@",
+//     database: "user"
+// });
 
-signupDatabase.connect((err)=>{
+// const parkingDatabase = mySQL.createConnection({
+//     host : "127.0.0.1",
+//     user: "root",
+//     password: "20122005Math@",
+//     database: "parking"
+// });
+
+
+userDatabase.connect((err)=>{
     if(err){
         console.log(err);
     }
     else{
-        console.log("signupDB Connected...");
+        console.log("userDB Connected...");
     }
 });
-parkingmanagementDatabase.connect((err)=>{
+parkingDatabase.connect((err)=>{
     if(err){
         console.log(err);
     }
@@ -77,7 +92,7 @@ app.get('/parking-data', (req, res) => {
     }
 
     const sql = "SELECT * FROM parking_event WHERE student_id = ?";
-    parkingmanagementDatabase.query(sql, [studentId], (err, result) => {
+    parkingDatabase.query(sql, [studentId], (err, result) => {
         if (err) {
             console.error('Error fetching parking data:', err);
             return res.status(500).json({ message: "Error fetching parking data", error: err.message });
@@ -86,16 +101,58 @@ app.get('/parking-data', (req, res) => {
     });
 });
 
+app.get('/user-information', (req, res) => {
+    // Get student_id from query string
+    const studentId = req.query.student_id;
+    if (!studentId) {
+        return res.status(400).json({ message: "No student ID provided",error: err.message });
+    }
 
+    const sql = "SELECT * FROM user_information WHERE student_id = ?";
+    userDatabase.query(sql, [studentId], (err, result) => {
+        if (err) {
+            console.error('Error fetching user data:', err);
+            return res.status(500).json({ message: "Error fetching user data", error: err.message });
+        }   
+        res.json(result);
+    });
+});
+app.post('/parking-data/pay', (req, res) => {
+    const parkingSQL = "UPDATE parking_event SET is_paid = 1 WHERE student_id = ? AND is_paid = 0;";
+    parkingDatabase.query(parkingSQL, [req.body.student_id], (err, result) => {
+        if (err) {
+            console.error('Error paying parking:', err);
+            return res.status(500).json({ message: "Error paying parking", error: err.message });
+        }
+    });
+    const userSQL = "UPDATE user_information SET saving = ? WHERE student_id = ?";
+    userDatabase.query(userSQL, [req.body.remainingBalance, req.body.student_id], (err, result) => {
+        if (err) {
+            console.error('Error paying parking:', err);
+            return res.status(500).json({ message: "Error paying parking", error: err.message });
+        }
+        return res.json({ message: "Paid parking successfully" });
+    });
+});
 app.get('/logout', (req, res) => {
     res.clearCookie('token');
     return res.json({Status: "Success"});
+});
+app.post('/user-information/add-money', (req, res) => {
+    const addMoneySql = "UPDATE user_information SET saving = saving + ? WHERE student_id = ?";
+    userDatabase.query(addMoneySql, [req.body.money_add, req.body.student_id], (err, result) => {
+        if (err) {
+            console.error('Error adding money:', err);
+            return res.status(500).json({ message: "Error adding money", error: err.message });
+        }
+        return res.json({ message: "Added money successfully" });
+    });
 });
 
 app.post('/register', (req, res) => {
     // Check if the email already exists
     const checkEmailSql = "SELECT * FROM login WHERE email = ?";
-    signupDatabase.query(checkEmailSql, [req.body.email], (emailErr, emailResult) => {
+    userDatabase.query(checkEmailSql, [req.body.email], (emailErr, emailResult) => {
         if (emailErr) {
             console.error('Error checking email:', emailErr);
             return res.status(500).json({ message: "Error checking email", error: emailErr.message });
@@ -106,7 +163,7 @@ app.post('/register', (req, res) => {
         } else {
             // Check if the student_ID already exists
             const checkStudentIdSql = "SELECT * FROM login WHERE student_id = ?";
-            signupDatabase.query(checkStudentIdSql, [req.body.student_id], (err, result) => {
+            userDatabase.query(checkStudentIdSql, [req.body.student_id], (err, result) => {
                 if (err) {
                     console.error('Error checking student id:', err);
                     return res.status(500).json({ message: "Error checking student id", error: err.message });
@@ -123,7 +180,7 @@ app.post('/register', (req, res) => {
                         }
                         const values = [req.body.name, req.body.student_id, req.body.email, hash];
                         const sql = "INSERT INTO login (`name`, `student_id`, `email`, `password`) VALUES (?)";
-                        signupDatabase.query(sql, [values], (insertErr, insertResult) => {
+                        userDatabase.query(sql, [values], (insertErr, insertResult) => {
                             if (insertErr) {
                                 console.error('Error inserting values:', values, 'Error:', insertErr);
                                 return res.status(500).json({ message: "Error in inserting values", values, error: insertErr.message });
@@ -140,7 +197,7 @@ app.post('/register', (req, res) => {
 
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM login WHERE email = ?";
-    signupDatabase.query(sql, [req.body.email], (err, result) => {
+    userDatabase.query(sql, [req.body.email], (err, result) => {
         if (err) {
             console.error('Error in query:', err); // Print to the server terminal
             return res.json({ message: "User not found", error: err.message });
@@ -169,7 +226,7 @@ app.post('/login', (req, res) => {
         });
     });
 }); 
-
-app.listen(3000,()=>{
+const PORT = process.env.PORT || 3000;
+app.listen(PORT,()=>{
     console.log("Server is running on port 3000");
 })

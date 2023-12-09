@@ -77,3 +77,155 @@
 #in-app {
     background: #4caf50; /* Example background color */
 }
+.floating-panel {
+    position: fixed; /* or absolute, depending on your layout */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; /* or any size you prefer */
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100; /* Ensure it sits above other content */
+    border-radius: 8px;
+}
+
+/* You might also want to add an overlay behind the panel */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10; /* Overlay needs to be above other content but below the panel */
+}
+
+
+.panel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%; /* Adjust to your desired width */
+  max-width: 600px; /* Maximum width */
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 10;
+}
+  
+.panel-row {
+  border-bottom: none;
+}
+
+
+.panel-label {
+  font-size: 16px;
+  padding: 10px 10px;
+  font-weight: bold;
+  background-color: #e9ecef; /* A light grey background for label cells */
+  color: #333; /* Dark text for contrast */
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Adjust this as needed to space out the button from the balance */
+  text-align: right;
+  padding-right: 10px;
+}
+.panel-value {
+  
+  font-weight: bold;
+  background-color: #f8f9fa;
+  text-align: right;
+}
+  
+  .plus-button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .panel-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Ensure full width to space out buttons */
+    margin-top: 20px; /* Add margin on top for spacing */
+}
+  
+  .panel-button {
+    padding: 10px 20px;
+    border: darkblue;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right:20px;
+  }
+  
+  .back-button {
+    margin-top: 20px; /* Adds space above the button */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f44336; /* Red */
+    color: white;
+  }
+  
+ 
+  
+  /* Additional styles */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 5;
+  }
+  .close-button, .pay-button {
+    flex: 1; /* Each button will take equal space */
+    margin: 0 10px; /* Add margin to space them out */
+    /* Rest of your styles */
+}
+.panel-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px; /* Space out table from other content */
+}
+.payment-button:hover, .back-button:hover, .close-button:hover, .pay-button:hover {
+  opacity: 0.8; /* Slightly transparent on hover */
+}
+.green-plus-button {
+  background-color: transparent; /* Makes the background transparent */
+  color:rgb(19, 37, 230);  /* Sets the color of the plus sign to green */
+  padding: 5px; /* Reduces the padding to make the button smaller */
+  font-size: 20px; /* Adjusts the font size of the plus sign */
+  border: 2px rgba(0, 0, 0, 0.1); /* Adds a green border to maintain the circular shape */
+  border-radius: 0px;
+  cursor: pointer; /* Keeps the cursor as a pointer to indicate it's clickable */
+  line-height: 1; /* Centers the plus sign vertically */
+  box-shadow: none; /* Removes the box shadow for a flat design */
+  transition: all 0.3s ease; /* Transition for effects on hover and focus */
+}
+
+.green-plus-button:hover,
+.green-plus-button:focus {
+  background-color: rgba(0, 0, 0, 00); /* Slight background on hover for visual feedback */
+  color:  #4CAF50;
+  outline: none; /* Removes the outline when focused */
+}
