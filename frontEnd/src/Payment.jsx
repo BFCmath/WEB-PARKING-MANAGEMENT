@@ -25,7 +25,7 @@ function Payment() {
         setShowPanel(false);
     };
     const handleClickBluePlusSign = ()=>{
-        axios.post('https://server-parking-web.onrender.com/user-information/add-money', { 
+        axios.post('https://userserver.parkingmanage.online/user-information/add-money', { 
             student_id: student_id,
             money_add: 10
         }, {withCredentials: true})
@@ -56,7 +56,7 @@ function Payment() {
             });
             return;
         }
-        axios.post('https://server-parking-web.onrender.com/parking-data/pay', {
+        axios.post('https://userserver.parkingmanage.online/parking-data/pay', {
             student_id: student_id,
             remainingBalance: remainingBalance
         }, {withCredentials: true})
@@ -85,8 +85,8 @@ function Payment() {
         }
         const fetchData = () => {
             // Start both requests simultaneously
-            const moneyPromise = axios.get(`https://server-parking-web.onrender.com/parking-data?student_id=${student_id}`, { withCredentials: true });
-            const walletPromise = axios.get(`https://server-parking-web.onrender.com/user-information?student_id=${student_id}`, { withCredentials: true });
+            const moneyPromise = axios.get(`https://userserver.parkingmanage.online/parking-data?student_id=${student_id}`, { withCredentials: true });
+            const walletPromise = axios.get(`https://userserver.parkingmanage.online/user-information?student_id=${student_id}`, { withCredentials: true });
             
             // Use Promise.all to wait for both requests to finish
             Promise.all([moneyPromise, walletPromise]).then(responses => {

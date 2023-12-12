@@ -20,7 +20,7 @@ function Home() {
 
 
     const fetchParkingData = () => {
-        axios.get(`https://server-parking-web.onrender.com/parking-data?student_id=${student_id}`, { withCredentials: true })
+        axios.get(`https://userserver.parkingmanage.online/parking-data?student_id=${student_id}`, { withCredentials: true })
             .then(parkingRes => {
                 console.log('Parking data: ' + student_id);
                 console.log(parkingRes.data);
@@ -73,14 +73,14 @@ function Home() {
         navigate('/payment',{state: {studentId: student_id}});
     }
     const handleLogout = () => {
-        axios.get('https://server-parking-web.onrender.com/logout')
+        axios.get('https://userserver.parkingmanage.online/logout')
             .then(() => {
                 navigate('/login');
             })
             .catch(err => console.log(err));
     };
     useEffect(() => {
-        axios.get('https://server-parking-web.onrender.com')
+        axios.get('https://userserver.parkingmanage.online')
             .then(res => {
                 if (res.data.Status === 'Success') {
                     setAuth(true);
