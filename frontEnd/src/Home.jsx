@@ -15,6 +15,7 @@ function Home() {
     const [student_id, setStudent_id] = useState('');
     const [total_money,setTotal_money] = useState(0);
     const [statusFilter, setStatusFilter] = useState('all');
+    const [dayFilter, setDayFilter] = useState('all');
     const [parkingData, setParkingData] = useState([]);
 
 
@@ -22,7 +23,6 @@ function Home() {
     const fetchParkingData = () => {
         axios.get(`https://userserver.parkingmanage.online/parking-data?student_id=${student_id}`, { withCredentials: true })
             .then(parkingRes => {
-                console.log('Parking data: ' + student_id);
                 console.log(parkingRes.data);
                 setParkingData(parkingRes.data); 
                 var totalPaid = parkingRes.data.reduce((total, record) => {
@@ -58,10 +58,25 @@ function Home() {
         reversedStr = reversedStr.replace(/(\d{3})(?=\d)/g, '$1.');
         return reversedStr.split('').reverse().join('');
     }
+    const compareDates = (parkingDate, daysDifference) => {
+        const currentDate = new Date(); // Current date and time
+        const parkingDateObj = new Date(parkingDate); // Convert parking date to Date object
+    
+        // Calculate the time difference in milliseconds
+        const timeDiff = currentDate.getTime() - parkingDateObj.getTime();
+    
+        // Convert time difference from milliseconds to days
+        const dayDiff = timeDiff / (1000 * 3600 * 24);
+    
+        // Compare the absolute day difference with the specified days difference
+        return Math.abs(dayDiff) <= daysDifference;
+    };    
     const filteredParkingData = parkingData.filter(record => {
-        if (statusFilter === 'all') return true;
-        if (statusFilter === 'paid') return record.is_paid === 1;
-        if (statusFilter === 'unpaid') return record.is_paid === 0;
+        var check = true;
+        if (statusFilter === 'paid') check &=  record.is_paid === 1;
+        else if (statusFilter === 'unpaid') check &= record.is_paid === 0;
+        check &= (dayFilter === 'all' || (dayFilter === 'month' && compareDates(record.time_in, 30)) || (dayFilter === 'week' && compareDates(record.time_in, 7)) || (dayFilter === 'today' && compareDates(record.time_in, 1)));
+        return check;
     });
     const handlePrintQR = () => {
         navigate('/print-qr', { state: { studentId: student_id } });
@@ -69,6 +84,9 @@ function Home() {
     const handleStatusFilterChange = (event) => {
         setStatusFilter(event.target.value);
     };
+    const handleDayFilterChange = (event) => {
+        setDayFilter(event.target.value);
+    }
     const handlePay = () =>{
         navigate('/payment',{state: {studentId: student_id}});
     }
@@ -76,7 +94,7 @@ function Home() {
         axios.get('https://userserver.parkingmanage.online/logout')
             .then(() => {
                 navigate('/login');
-            })
+            })  
             .catch(err => console.log(err));
     };
     useEffect(() => {
@@ -105,7 +123,7 @@ function Home() {
         fetchParkingData();
         const intervalId = setInterval(fetchParkingData, 30000);
         return () => clearInterval(intervalId);
-      },[statusFilter,student_id]);
+      },[statusFilter,dayFilter,student_id]);
     return (
         <div className='home-container'>
           {!auth ? (
@@ -128,14 +146,27 @@ function Home() {
                 <div >
                     <button onClick={handlePrintQR} className='printQR-container' >Print QR</button> 
                 </div>
-                <div className='filter-container'>
-                    <label htmlFor="statusFilter">Filter by status:  </label>
-                    <select id="statusFilter" onChange={handleStatusFilterChange}>
-                        <option value="all">All</option>
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                    </select>
+                <div className='filter-container my-border'>
+                    <div className='filter-item my-border'>
+                        <label htmlFor="statusFilter">Filter by status:</label>
+                        <select id="statusFilter" onChange={handleStatusFilterChange}>
+                            <option value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                        </select>
+                    </div>
+                    <div className='filter-item my-border'>
+                        <label htmlFor="dayFilter">Filter by day:</label>
+                        <select id="dayFilter" onChange={handleDayFilterChange}>
+                            <option value="all">All</option>
+                            <option value="month">Last month</option>
+                            <option value="week">Last week</option>
+                            <option value="today">Today</option>
+                        </select>
+                    </div>
                 </div>
+
+                
                 <table className='parking-table' style={{wordBreak: 'break-word', maxWidth: '100%'}}>
                     <thead>
                         <tr>
